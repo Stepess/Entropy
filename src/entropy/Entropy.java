@@ -8,7 +8,7 @@ import java.io.*;
  */
 
 public class Entropy {
-    private static final int SIZE = 32;//длина алфавита 33 с пробелом
+    private static final int SIZE = 33;//длина алфавита 33 с пробелом
     static float calcEntropy(float[] freq,int size){
         float res=0;
         for(int i=0;i<size;i++){
@@ -32,8 +32,7 @@ public class Entropy {
             System.out.printf("%7s",(char)(i +1072));
             if (i==32)
                 System.out.printf("%7s",' ');
-        }
-            
+        }   
         System.out.println();
         for(int j=0;j<size;j++){
             System.out.print((char)(j +1072) + "  ");
@@ -51,8 +50,7 @@ public class Entropy {
             System.out.printf("%8s",(char)(i +1072));
             if (i==32)
                 System.out.printf("%5s",' ');
-        }
-            
+        }  
         System.out.println();
         for(int j=0;j<size;j++){
             System.out.print((char)(j +1072) + "  ");
@@ -147,23 +145,18 @@ class Reader {
         StringBuilder sb = new StringBuilder();
         int k=0;
         while((s = br.readLine()) != null) {
-            
             sb.append(s);
             k++;
-            //s=s.replaceAll("\\w+|\\!|\\,|\\.|\\?|\\s|\\*|\\-|\\(|\\)|\\\"|\\:|\\^|\\#|\\$|\\%|\\ё|\\_|\\\n|\\;|\\/|\\<|\\>", "");
             if (k==13){
-                
                 s=sb.toString();
                 sb.setLength(0);
-                //s=s.replaceAll("[^А-Яа-я]|\n", " ");
                 s=s.replaceAll("\\w+|\\!|\\,|\\.|\\?|\\*|\\-|\\(|\\)|\\\"|\\:|\\^|\\#|\\$|\\%|\\ё|\\_|\\\n|\\;|\\/|\\<|\\>|\\…|\\—", "");
                 s=s.replaceAll("\\s+", " ");
                 s=s.toLowerCase();
-                System.out.println(s);
+                //System.out.println(s);
                 len +=  s.length();
                 char[] arr = s.toCharArray();
                 for (int i=0;i<s.length();i++){
-                    
                     if (i%2!=0){  
                         countBigram[index(arr[i-1])][index(arr[i])] +=1;
                     }
@@ -173,8 +166,7 @@ class Reader {
                     countMono[index(arr[i])] +=1;
                 }
                 k=0;
-            }
-            
+            }  
         }
         if(k!=0){
                 s=sb.toString();
@@ -182,7 +174,7 @@ class Reader {
                 s=s.replaceAll("\\w+|\\!|\\,|\\.|\\?|\\*|\\-|\\(|\\)|\\\"|\\:|\\^|\\#|\\$|\\%|\\ё|\\_|\\\n|\\;|\\/|\\<|\\>|\\…|\\—", "");;
                 s=s.replaceAll("\\s+", " ");
                 s=s.toLowerCase();
-                System.out.println(s);
+                //System.out.println(s);
                 len +=  s.length();
                 char[] arr = s.toCharArray();
                 for (int i=0;i<s.length();i++){
@@ -320,3 +312,4 @@ class Reader {
     }
 }
 */
+//s=s.replaceAll("[^А-Яа-я]|\n", " ");
