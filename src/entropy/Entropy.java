@@ -8,11 +8,11 @@ import java.io.*;
  */
 
 public class Entropy {
-    private static final int SIZE = 33;//длина алфавита 33 с пробелом
+    private static final int SIZE = 32;//длина алфавита 33 с пробелом
     static float calcEntropy(float[] freq,int size){
         float res=0;
         for(int i=0;i<size;i++){
-            res = res - freq[i]*(float)((Math.log(freq[i]/100))/Math.log(2));
+            res = res - (freq[i]/100)*(float)((Math.log(freq[i]/100))/Math.log(2));
         }
         return res;
     }
@@ -21,7 +21,7 @@ public class Entropy {
         for(int i=0;i<size;i++)
             for(int j=0;j<size;j++){
                 if (freq[i][j]!=0.0)//иначе вылазит NaN
-                    res = res - (freq[i][j])*(float)((Math.log(freq[i][j]/100))/Math.log(2));
+                    res = res - (freq[i][j]/100)*(float)((Math.log(freq[i][j]/100))/Math.log(2));
             }
         return res;
     }
@@ -71,7 +71,7 @@ public class Entropy {
         }
         return res;
     }
-    static final String PATH = "D:\\\\Programming\\Crypt\\entropy\\text\\master.txt";
+    static final String PATH = "D:\\\\Programming\\Crypt\\entropy\\text\\lordring.txt";
     public static void main(String[] args) throws Exception {
         Reader reader = new Reader();
         int len=0;
@@ -150,7 +150,8 @@ class Reader {
             if (k==13){
                 s=sb.toString();
                 sb.setLength(0);
-                s=s.replaceAll("\\w+|\\!|\\,|\\.|\\?|\\*|\\-|\\(|\\)|\\\"|\\:|\\^|\\#|\\$|\\%|\\ё|\\_|\\\n|\\;|\\/|\\<|\\>|\\…|\\—", "");
+                //System.err.println((char)64);
+                s=s.replaceAll("\\w+|\\!|\\,|\\.|\\?|\\*|\\-|\\(|\\)|\\\"|\\:|\\^|\\#|\\$|\\%|\\ё|\\_|\\\n|\\;|\\/|\\<|\\>|\\…|\\—|\\@", "");
                 s=s.replaceAll("\\s+", " ");
                 s=s.toLowerCase();
                 //System.out.println(s);
