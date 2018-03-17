@@ -8,7 +8,8 @@ import java.io.*;
  */
 
 public class Entropy {
-    private static final int SIZE = 32;//длина алфавита 33 с пробелом
+    private static final int SIZE_WT_SPACE = 32;//длина алфавита 33 с пробелом
+    private static final int SIZE_W_SPACE = 33;
     static float calcEntropy(float[] freq,int size){
         float res=0;
         for(int i=0;i<size;i++){
@@ -23,7 +24,7 @@ public class Entropy {
                 if (freq[i][j]!=0.0)//иначе вылазит NaN
                     res = res - (freq[i][j]/100)*(float)((Math.log(freq[i][j]/100))/Math.log(2));
             }
-        return res;
+        return res/2;
     }
     //Сначала строка потом столбец, т.е. сочитание "ва" 2 строка, 0 столбец
     static void printTable(int[][] count, int size){
@@ -62,8 +63,14 @@ public class Entropy {
         }
     }
     
-    static float[][] convertToFreq(int[][] arr, int size,int len){
+    static float[][] convertToFreq(int[][] arr, int size){
         float[][] res = new float[size][size];
+        int len = 0;
+        for(int i=0;i<size;i++){
+            for(int j=0;j<size;j++){
+                len += arr[i][j];
+            }
+        }
         for(int i=0;i<size;i++){
             for(int j=0;j<size;j++){
                 res[i][j] = (float)(arr[i][j]*100)/len;
@@ -71,23 +78,12 @@ public class Entropy {
         }
         return res;
     }
-    static final String PATH = "D:\\\\Programming\\Crypt\\entropy\\text\\lordring.txt";
-    public static void main(String[] args) throws Exception {
-        Reader reader = new Reader();
-        int len=0;
-        try{
-            reader.readFile(PATH);
-            len=reader.getLen();
-        }
-        catch(IOException ex){
-            System.out.print(ex.getMessage());
-        }
-        int[] count = reader.getArrMono();
+    
+    static float[] printResult(int SIZE, int len, int[] count, int[][] arrBigramWt, int[][] arrBigramW){
+        float[] res = new float[3];
         DoubleArray mono = new DoubleArray(SIZE);
         mono.setValue(count);
         mono.sort();
-        if (SIZE==32)
-            len = len - count[32];
         System.out.println("===============================");
         System.out.println("Number of symbol in text:");
         System.out.println("===============================");
@@ -100,32 +96,64 @@ public class Entropy {
         System.out.println("===============================");
         System.out.println("Entropy:");
         System.out.println("===============================");
-        System.out.println(calcEntropy(mono.getArrFreq(),SIZE));
+        res[0] = calcEntropy(mono.getArrFreq(),SIZE);
+        System.out.println(res[0]);
         System.out.println("===============================");
         System.out.println("Bigrams without intersection");
         System.out.println("===============================");
-        int[][] arrBigramWt = reader.getArrBigramWt();
-        float[][] freqBigramWt = convertToFreq(arrBigramWt,SIZE,len/2);
+        /*int calc = 0;
+        for(int i=0;i<32;i++){
+            calc += arrBigramW[i][32];
+        }
+        for(int i=0;i<32;i++){
+            calc += arrBigramW[32][i];
+        }
+        len = len - calc;*/
+        float[][] freqBigramWt = convertToFreq(arrBigramWt,SIZE);
         printTable(arrBigramWt, SIZE);
         System.out.println();
         printTable(freqBigramWt,SIZE);
         System.out.println("===============================");
         System.out.println("Entropy:");
         System.out.println("===============================");
-        System.out.println(calcEntropy(freqBigramWt,SIZE));
-        int[][] arrBigramW = reader.getArrBigramW();
+        res[1] = calcEntropy(freqBigramWt,SIZE);
+        System.out.println(res[1]);
         System.out.println("===============================");
         System.out.println("Bigrams with intersection");
         System.out.println("===============================");
         printTable(arrBigramW,SIZE);
-        float[][] freqBigramW = convertToFreq(arrBigramW,SIZE,len-1);
+        float[][] freqBigramW = convertToFreq(arrBigramW,SIZE);
         printTable(freqBigramW, SIZE);
         System.out.println();
         System.out.println("===============================");
         System.out.println("Entropy:");
         System.out.println("===============================");
-        System.out.println(calcEntropy(freqBigramW,SIZE));
+        res[2] = calcEntropy(freqBigramW,SIZE);
+        System.out.println(res[2]);
+        return res;
+    }
+    
+    static final String PATH = "D:\\\\Programming\\Crypt\\entropy\\text\\master.txt";
+    public static void main(String[] args) throws Exception {
+        Reader reader = new Reader();
+        int len=0;
+        try{
+            reader.readFile(PATH);
+            len=reader.getLen();
         }
+        catch(IOException ex){
+            System.out.print(ex.getMessage());
+        }
+        int[] count = reader.getArrMono();
+        int[][] arrBigramWt = reader.getArrBigramWt();
+        int[][] arrBigramW = reader.getArrBigramW();
+        float[] wt_Space = printResult(SIZE_WT_SPACE, len - count[32], count, arrBigramWt, arrBigramW);
+        float[] w_Space = printResult(SIZE_W_SPACE, len, count, arrBigramWt, arrBigramW);
+        System.out.println();
+        for (int i=0;i<3;i++){
+            System.out.println(wt_Space[i] + " vs " + w_Space[i]);
+        }
+    }
 }
 
 class Reader {
@@ -143,52 +171,28 @@ class Reader {
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path),"CP1251"));
         String s;
         StringBuilder sb = new StringBuilder();
-        int k=0;
         while((s = br.readLine()) != null) {
             sb.append(s);
-            k++;
-            if (k==13){
-                s=sb.toString();
-                sb.setLength(0);
-                //System.err.println((char)64);
-                s=s.replaceAll("\\w+|\\!|\\,|\\.|\\?|\\*|\\-|\\(|\\)|\\\"|\\:|\\^|\\#|\\$|\\%|\\ё|\\_|\\\n|\\;|\\/|\\<|\\>|\\…|\\—|\\@", "");
-                s=s.replaceAll("\\s+", " ");
-                s=s.toLowerCase();
-                //System.out.println(s);
-                len +=  s.length();
-                char[] arr = s.toCharArray();
-                for (int i=0;i<s.length();i++){
-                    if (i%2!=0){  
-                        countBigram[index(arr[i-1])][index(arr[i])] +=1;
-                    }
-                    if(i!=0){
-                        countBigramW[index(arr[i-1])][index(arr[i])] +=1;
-                    }
-                    countMono[index(arr[i])] +=1;
-                }
-                k=0;
-            }  
         }
-        if(k!=0){
-                s=sb.toString();
-                sb.setLength(0);
-                s=s.replaceAll("\\w+|\\!|\\,|\\.|\\?|\\*|\\-|\\(|\\)|\\\"|\\:|\\^|\\#|\\$|\\%|\\ё|\\_|\\\n|\\;|\\/|\\<|\\>|\\…|\\—", "");;
-                s=s.replaceAll("\\s+", " ");
-                s=s.toLowerCase();
-                //System.out.println(s);
-                len +=  s.length();
-                char[] arr = s.toCharArray();
-                for (int i=0;i<s.length();i++){
-                    if (i%2!=0){  
-                        countBigram[index(arr[i-1])][index(arr[i])] +=1;
-                    }
-                    if(i!=0){
-                        countBigram[index(arr[i-1])][index(arr[i])] +=1;
-                    }
-                    countMono[index(arr[i])] +=1;
+            s=sb.toString();
+            sb.setLength(0);
+            s=s.replaceAll("\\ё", "е");  
+            
+            //s=s.replaceAll("[^А-Яа-я]|\n", "");
+            s=s.replaceAll("\\s+", " ");
+            s=s.replaceAll("\\w+|\\!|\\,|\\.|\\?|\\*|\\-|\\(|\\)|\\\"|\\:|\\^|\\#|\\$|\\%|\\_|\\\n|\\;|\\/|\\<|\\>|\\…|\\—|\\@", "");
+            s=s.toLowerCase();
+            len +=  s.length();
+            char[] arr = s.toCharArray();
+            for (int i=0;i<s.length();i++){
+                if (i%2!=0){  
+                    countBigram[index(arr[i-1])][index(arr[i])] +=1;
                 }
-                k=0;
-        }
+                if(i!=0){
+                    countBigramW[index(arr[i-1])][index(arr[i])] +=1;
+                }
+                countMono[index(arr[i])] +=1;
+            }
         System.out.println();
         br.close();
     }
@@ -280,37 +284,3 @@ class DoubleArray {
         return freq;
     }
 }
-
-/*
-public void printNotZero(int len){
-        int i=0;
-        double d =0;
-        while((value[i]!=0)&&(i<size)){
-            d = (double)(value[i]*100)/len;
-            //System.out.println(order[i]+" = " + d +"%");
-            System.out.printf("%s = %f%%%n ",order[i],d);
-            i++;
-            if(i==32) break;
-        }
-    }
-
-class Reader {
-    public static String readFileMono(String path) throws IOException{
-        String res = "";
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path),"CP1251"));
-        StringBuilder sb = new StringBuilder();
-        String s;
-        while((s = br.readLine()) != null) {
-            s=s.toLowerCase();
-            //s=s.replaceAll("\\w+", "");
-            s=s.replaceAll("\\w+|\\!|\\,|\\.|\\?|\\s", "");
-            sb.append(s);
-        }
-        res = sb.toString();
-        //System.out.println(s);
-        br.close();
-        return res;
-    }
-}
-*/
-//s=s.replaceAll("[^А-Яа-я]|\n", " ");
