@@ -2,9 +2,10 @@ package entropy;
 import java.io.*;
 
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ *****************************
+  Компьютерный практикум №1
+  ФИ-52, Ершов С., Овчарова М.
+ *****************************
  */
 
 public class Entropy {
@@ -101,14 +102,6 @@ public class Entropy {
         System.out.println("===============================");
         System.out.println("Bigrams without intersection");
         System.out.println("===============================");
-        /*int calc = 0;
-        for(int i=0;i<32;i++){
-            calc += arrBigramW[i][32];
-        }
-        for(int i=0;i<32;i++){
-            calc += arrBigramW[32][i];
-        }
-        len = len - calc;*/
         float[][] freqBigramWt = convertToFreq(arrBigramWt,SIZE);
         printTable(arrBigramWt, SIZE);
         System.out.println();
@@ -177,8 +170,6 @@ class Reader {
             s=sb.toString();
             sb.setLength(0);
             s=s.replaceAll("\\ё", "е");  
-            
-            //s=s.replaceAll("[^А-Яа-я]|\n", "");
             s=s.replaceAll("\\s+", " ");
             s=s.replaceAll("\\w+|\\!|\\,|\\.|\\?|\\*|\\-|\\(|\\)|\\\"|\\:|\\^|\\#|\\$|\\%|\\_|\\\n|\\;|\\/|\\<|\\>|\\…|\\—|\\@", "");
             s=s.toLowerCase();
